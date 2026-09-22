@@ -29,8 +29,6 @@ CLINICAL_SUB_SECTIONS = {
     "4.9": "Surdosage"
 }
 
-# LA REGEX ABSOLUE (re.DOTALL permet de traverser les sauts de ligne)
-# On cherche un début de ligne (ou \n), des astérisques optionnels, 4.X, et le mot clé.
 CLINICAL_PATTERN = re.compile(
     r"(?:^|\n)[ \t#\*]*4[\.\\]+\s*([1-9]).{0,30}?(?:Indication|Posolog|Contre|Mise|Interaction|Fertilit|Grossesse|Allaitement|Effet|Surdosage)",
     re.IGNORECASE | re.DOTALL
@@ -195,8 +193,6 @@ def chunk_semantic(rcp_data):
         if len(content) <= 50 or is_noise:
             continue
         
-        # DETECTION BLINDÉE : Peu importe l'index i, si le bloc contient les mots clés cliniques
-        # formatés "4.X", il part dans l'extracteur chirurgical.
         matches = list(CLINICAL_PATTERN.finditer(content))
         if matches:
             clinical_chunks = extract_clinical_subsections(content, rcp_data, i)
