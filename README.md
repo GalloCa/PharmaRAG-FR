@@ -16,12 +16,13 @@ Travailler sur ce corpus a mis en lumière plusieurs défis concrets :
 
 ## Pipeline
 
-- **Scraping** :
-- **Chunking sémantique**
+- **Scraping** : ~ 10 000 RCP collectés depuis la BDPM
+- **Chunking sémantique** : ~43 000 chunks propres, découpés par rubrique
 - **Indexation** :
-- **Génération** :
+- **Génération** : recherche vectorielle -> prompt contrait -> Ollama (Mistral), avec obligation de citer la dénomination exacte et la rubrique source, et de ne pas répondre si l'information est absente du contexte
 
 ## NER : pourquoi pas un modèle prêt-à-l'emploi ? 
+A remplir avec mes données 
 
 **Résultat**
 
@@ -39,8 +40,35 @@ Quelques exemples :
 
 ## Extensions futures (non implémentées)
 
-- **Base structurée (MySQL)** :
-- **Fine-tuning NER biomédical** :
+- **Base structurée (MySQL)** : table de métadonnées liées aux chunks vectoriels pour un retrieval hybride (filtrage SQL + recherche sémantique)
+- **Fine-tuning NER biomédical** : Entraineemnt sur le corpus QUAERO pour dépasser les limites identifiées
+
+## Structure du dépot
+```
+pharmarag-fr/
+├── config.py                   # Constantes globales, chemins Pathlib, hyperparamètres
+├── src/
+│   ├── scraping/
+│   │   ├── fetch_bdpm.py       # Téléchargment 
+│   │   └── fetch_rcp.py        # Scraping HTML
+│   ├── chunking/
+│   │   └── preprocess.py       # Nettoyage et segmentation sémantique par rubrique 
+│   ├── indexing/
+│   │   └── index.py            # Indexation ChromaDB + SenntenceTransformer   
+│   ├── generation/
+│   │   └── rag.py              # Pipeline prompt
+│   └── evaluation/
+│       └── evaluate.py         # métriques d'évaluation
+├── notebooks/
+│   └── test_database.ipynb
+├── data/
+│   ├── raw/                    # Fichiers bruts BDPM et notices non traitées
+│   ├── processed/              # Fichier chunks
+│   └── chroma_db/              #  Dossier persistant ChromaDB (exclu par gitignore)
+├── requirements.txt
+└── README.md
+└── README.fr (version FR du README)
+```
 
 ## Stack technique
 
