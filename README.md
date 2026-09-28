@@ -1,4 +1,4 @@
-# MedRAG-FR 
+# PharmaRAG-FR
 
 Pipeline de RAG appliqué aux résumés des caractéristiques du produit (RCP) issus de la Base de Données Publique des Médicaments (BDPM) française.
 
