@@ -31,7 +31,6 @@ Quelques exemples :
 
 **Conclusion** : les modèles NER généralistes n'ont pas de représentation adaptée au vocabulaire pharmacologique / médical.
 
-## Comparaison des embeddings : sémantique vs lexicale
 
 ## Evaluation : 
 
