@@ -135,15 +135,17 @@ pharmarag-fr/
 │   ├── chunking/
 │   │   └── preprocess.py       # Nettoyage et segmentation sémantique par rubrique 
 │   ├── indexing/
-│   │   └── indexation.py            # Indexation ChromaDB + SentenceTransformer   
+│   │   └── indexation.py       # Indexation ChromaDB + SentenceTransformer   
 │   ├── generation/
 │   │   └── rag.py              # Pipeline prompt
 │   └── evaluation/
-│       └── evaluation.py         # métriques d'évaluation
+│       └── evaluation.py        # métriques d'évaluation
 ├── data/
 │   ├── raw/                    # Fichiers bruts BDPM et notices non traitées
 │   ├── processed/              # Fichier chunks
-│   └── chroma_db/              #  Dossier persistant ChromaDB (exclu par gitignore)
+│   ├── chroma_db/              # Dossier persistant ChromaDB (exclu par gitignore)
+    └── evaluation/             # Fichiers résultats 
+
 ├── requirements.txt
 └── README.md
 └── README.fr (version FR du README)
