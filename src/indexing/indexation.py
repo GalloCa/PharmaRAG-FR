@@ -14,16 +14,19 @@ from config import (EMBED_MODEL_NAME,
 
 
 def index_main():
-    print(f"Test chargement modèle")
+    """
+    
+    """
+    print(f"Testing embedding model loading")
 
     model = SentenceTransformer(EMBED_MODEL_NAME, device=EMBED_DEVICE)
 
-    print(f"Test connexion base vectorielle CHromaDB")
+    print(f"Testing ChromaDB persistent connection")
     client = chromadb.PersistentClient(path=str(CHROMA_DB_PATH))
 
     try:
         client.delete_collection(name=COLLECTION_NAME)
-        print(f"   Ancienne collection '{COLLECTION_NAME}' purgée.")
+        print(f" Existing collection '{COLLECTION_NAME}' purged.")
     except Exception:
         pass
 
@@ -32,13 +35,16 @@ def index_main():
         metadata={"hnsw:space": "cosine"}
     )
 
-    print(f"Test lecture chunks")
+    print(f"Loading chunks from disk")
     with open(CHUNKS_PATH, mode = "r", encoding="utf8") as f:
         raw_chunks = [json.loads(line) for line in f]
+    total_chunks = len(raw_chunks)
+    print(f"Total chunks loaded: {total_chunks}")
 
-    for i in tqdm(range(0, len(raw_chunks), BATCH_SIZE_INDEX), desc="Indexation native"):
+    for i in tqdm(range(0, len(raw_chunks), BATCH_SIZE_INDEX), desc="Native indexing"):
         batch = raw_chunks[i : i + BATCH_SIZE_INDEX]
 
+        # in-batch deduplication to avoir duplicate key errors during upsert
         seen_ids = set()
         clean_batch = []
         for chunk in batch:
@@ -60,6 +66,7 @@ def index_main():
         for chunk in clean_batch
         ]
 
+        # dense vector encoding with L2 normalization for cosine space
         embeddings = model.encode(
             docs,
             batch_size = BATCH_SIZE_ENCODE,
@@ -67,6 +74,7 @@ def index_main():
             show_progress_bar=False
         ).tolist()
 
+        # insert or update vectors into collection
         collection.upsert(
             ids = idx, 
             documents = docs,
@@ -74,7 +82,7 @@ def index_main():
             embeddings = embeddings
         )
 
-    print(f"Indexation finie")
+    print(f"Indexing complete. {collection.count()} chunks stored in '{COLLECTION_NAME}'")
 
 if __name__== "__main__":
     os.makedirs(CHROMA_DB_PATH, exist_ok=True)
