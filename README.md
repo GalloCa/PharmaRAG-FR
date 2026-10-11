@@ -140,8 +140,6 @@ pharmarag-fr/
 │   │   └── rag.py              # Pipeline prompt
 │   └── evaluation/
 │       └── evaluation.py         # métriques d'évaluation
-├── notebooks/
-│   └── test_database.ipynb
 ├── data/
 │   ├── raw/                    # Fichiers bruts BDPM et notices non traitées
 │   ├── processed/              # Fichier chunks
