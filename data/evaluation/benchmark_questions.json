@@ -1,0 +1,92 @@
+[
+  {
+    "id": "eval_01",
+    "query": "Quelles sont les contre-indications absolues du paracétamol ?",
+    "filtre_section": "4.3",
+    "expected_denomination": "PARACETAMOL",
+    "expected_cis": null,
+    "expected_section": "4.3",
+    "description": "Recherche de contre-indication standard sur molécule courante"
+  },
+  {
+    "id": "eval_02",
+    "query": "Quel test génétique préalable est obligatoire avant d'initier un traitement par abacavir ?",
+    "filtre_section": "4.4",
+    "expected_denomination": "ABACAVIR",
+    "expected_cis": "61876780",
+    "expected_section": "4.4",
+    "description": "Détection d'une mise en garde génétique spécifique (HLA-B*5701)"
+  },
+  {
+    "id": "eval_03",
+    "query": "Quelle est la posologie usuelle du paracétamol chez l'adulte de plus de 50 kg ?",
+    "filtre_section": "4.2",
+    "expected_denomination": "PARACETAMOL",
+    "expected_cis": null,
+    "expected_section": "4.2",
+    "description": "Vérification des paliers posologiques par prise et dose maximale journalière"
+  },
+  {
+    "id": "eval_04",
+    "query": "Quelles sont les manifestations cutanées graves du syndrome d'hypersensibilité à l'abacavir ?",
+    "filtre_section": "4.8",
+    "expected_denomination": "ABACAVIR",
+    "expected_cis": "61876780",
+    "expected_section": "4.8",
+    "description": "Recherche des effets indésirables nosologiques graves"
+  },
+  {
+    "id": "eval_05",
+    "query": "Peut-on administrer de l'aspirine ou des AINS chez une femme enceinte au troisième trimestre ?",
+    "filtre_section": "4.6",
+    "expected_denomination": "ACIDE ACETYLSALICYLIQUE",
+    "expected_cis": null,
+    "expected_section": "4.6",
+    "description": "Contre-indication formelle liée à la grossesse (toxicité cardio-pulmonaire fœtale)"
+  },
+  {
+    "id": "eval_06",
+    "query": "Quelles sont les indications thérapeutiques de l'abacavir dans la prise en charge de l'infection par le VIH ?",
+    "filtre_section": "4.1",
+    "expected_denomination": "ABACAVIR",
+    "expected_cis": "61876780",
+    "expected_section": "4.1",
+    "description": "Extraction des indications nosologiques initiales"
+  },
+  {
+    "id": "eval_07",
+    "query": "Quelles sont les interactions médicamenteuses majeures de la warfarine ou des antivitamines K ?",
+    "filtre_section": "4.5",
+    "expected_denomination": "WARFARINE",
+    "expected_cis": null,
+    "expected_section": "4.5",
+    "description": "Détection des risques de majoration hémorragique"
+  },
+  {
+    "id": "eval_08",
+    "query": "Quels sont les signes cliniques précoces d'un surdosage massif en paracétamol ?",
+    "filtre_section": "4.9",
+    "expected_denomination": "PARACETAMOL",
+    "expected_cis": null,
+    "expected_section": "4.9",
+    "description": "Identification des symptômes d'intoxication hépatique"
+  },
+  {
+    "id": "eval_09",
+    "query": "L'abacavir peut-il être repris après une interruption suite à une suspicion de réaction d'hypersensibilité ?",
+    "filtre_section": "4.4",
+    "expected_denomination": "ABACAVIR",
+    "expected_cis": "61876780",
+    "expected_section": "4.4",
+    "description": "Règle impérative d'arrêt définitif sans réintroduction"
+  },
+  {
+    "id": "eval_10",
+    "query": "Quelles sont les contre-indications liées à la fonction hépatique pour le tramadol ?",
+    "filtre_section": "4.3",
+    "expected_denomination": "TRAMADOL",
+    "expected_cis": null,
+    "expected_section": "4.3",
+    "description": "Contre-indications chez l'insuffisant hépatique sévère"
+  }
+]

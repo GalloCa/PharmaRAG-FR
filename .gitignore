@@ -148,16 +148,14 @@ __marimo__/
 .DS_Store
 Thumbs.db
 
-# Data — trop lourd pour Git
-data/
+# Data
+data/raw/*
+data/processed/*
+data/chroma_db/*
+data/evaluation/*
 
-# Garder la structure des dossiers
-!data/
-!data/raw/
+# Garder uniquement la structure
 !data/raw/.gitkeep
-!data/processed/
 !data/processed/.gitkeep
-!data/chroma_db/
 !data/chroma_db/.gitkeep
-!data/evaluation/
 !data/evaluation/.gitkeep
