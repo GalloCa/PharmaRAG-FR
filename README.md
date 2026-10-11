@@ -1,7 +1,5 @@
 # PharmaRAG-FR
 
-> 🇬🇧 [Read in English](README.md)
-
 Pipeline de RAG appliqué aux résumés des caractéristiques du produit (RCP) issus de la Base de Données Publique des Médicaments (BDPM) française.
 
 > **Projet en cours de finalisation** - ce README reflète l'état actuel du dépôt.
