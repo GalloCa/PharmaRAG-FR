@@ -3,8 +3,9 @@ import os
 import json
 import re
 
-from rag import retrieve, build_context, generate
 from config import (EVAL_OUTPUT_PATH, EVAL_TOP_K, BENCHMARK_QUESTIONS)
+from rag import retrieve, build_context, generate
+
 
 def compute_retrieval_metrics(
     results, 
@@ -14,8 +15,9 @@ def compute_retrieval_metrics(
     top_k
 ):
     """
-    Calcule Hit@k, Precision@k et MRR.
-    Un chunk est valide s'il a la bonne section ET (le bon CIS ou la bonne molécule).
+    Compute retrieval metrics (Hit@5, Precision@k, MRR) over candidate chunks.
+    A chunk is considered relevant if its sections matches expected_section and
+    matches expected_cis if provided, or contains expected_denomination.
     """
     docs = results.get("documents", [[]])
     if not docs or not docs[0]:
@@ -41,9 +43,10 @@ def compute_retrieval_metrics(
         chunk_denom = str(meta.get("denomination", "")).strip().lower()
         chunk_subst = str(meta.get("substance_active", "")).strip().lower()
 
-        # 1. Validation de la section
+        # section matching
         match_section = (chunk_sec == target_sec)
 
+        # substance matching
         match_cis = (chunk_cis in target_cis) if target_cis else False
         match_denom = (target_denom in chunk_denom or 
                        target_denom in chunk_subst or 
@@ -68,13 +71,14 @@ def compute_retrieval_metrics(
 
 
 def compute_formal_compliance(
-    response: str, 
-    expected_denomination: str, 
-    expected_section: str,
-    context_is_empty: bool = False
-) -> dict:
+    response, 
+    expected_denomination, 
+    expected_section,
+    context_is_empty= False
+    )
     """
-    Vérification déterministe de la réponse : ancrage, traçabilité et refus sur contexte vide[cite: 1, 2].
+    Deterministic compliance checks: nominal grounding, section traceabulity, 
+    and refusal handling on empty context
     """
     if not response or not isinstance(response, str):
         return {
@@ -85,15 +89,14 @@ def compute_formal_compliance(
         }
 
     resp_clean = response.lower()
-
-    # 1. Ancrage nominal (dénomination attendue présente)
+    # Nominal grounding 
     anchorage = (expected_denomination.lower() in resp_clean) if expected_denomination else False
 
-    # 2. Traçabilité nosologique (ex: "4.3" ou "rubrique 4.3")
+    # section traceability
     sec_pattern = rf"(rubrique\s+)?{re.escape(str(expected_section))}"
     traceability = bool(re.search(sec_pattern, resp_clean)) if expected_section else False
 
-    # 3. Gestion de l'incertitude (activée si contexte vide ou refus explicite)
+    # uncertainty handling, explicit refusal triggered if context is absent
     refusal_markers = [
         "je ne sais pas", 
         "documentation insuffisante", 
@@ -112,24 +115,27 @@ def compute_formal_compliance(
     }
 
 
-def run_evaluation(questions: list[dict]) -> list[dict]:
+def run_evaluation(questions):
+    """
+    Run full benchmark loop across evaluation questions and log metrics
+    """
     eval_results = []
     
     print("\n" + "=" * 70)
-    print(f"🔬 DÉMARRAGE DU BENCHMARK PHARMARAG-FR ({len(questions)} QUESTIONS)")
+    print(f"Starting PharmaRAG-FR benchmark ({len(questions)} questions)")
     print("=" * 70)
 
     for q in questions:
         q_id = q["id"]
         query = q["query"]
-        print(f"\n⏳ Traitement de [{q_id}] en cours...", end="", flush=True)
+        print(f"\nProcessinf [{q_id}]", end="", flush=True)
         top_k = q.get("top_k", EVAL_TOP_K)
         filtre_sec = q.get("filtre_section")
         exp_denom = q.get("expected_denomination", "")
         exp_sec = q.get("expected_section", "")
         exp_cis = q.get("expected_cis", [])
 
-        # 1. Retrieval
+        # retrieval
         raw_retrieval = retrieve(query, top_k=top_k, filtre_section=filtre_sec)
         ret_metrics = compute_retrieval_metrics(
             results=raw_retrieval,
@@ -139,16 +145,16 @@ def run_evaluation(questions: list[dict]) -> list[dict]:
             top_k=top_k
         )
 
-        # Vérification si le contexte extrait est vide
+        
         docs = raw_retrieval.get("documents", [[]])
         context_empty = (not docs or not docs[0])
 
-        # 2. Génération + chronométrage
+        # generation 
         t_start = time.time()
         response_text = generate(query, top_k=top_k, filtre_section=filtre_sec)
         t_elapsed = round(time.time() - t_start, 2)
 
-        # 3. Évaluation formelle
+        # scoring
         gen_metrics = compute_formal_compliance(
             response=response_text,
             expected_denomination=exp_denom,
@@ -165,12 +171,12 @@ def run_evaluation(questions: list[dict]) -> list[dict]:
         }
         eval_results.append(record)
 
-        # Résumé par question dans le terminal
+        # terminal summary
         print(f"\n▶ [{q_id}] {query[:60]}...")
         print(f"   Retrieval  : Hit@{top_k}={ret_metrics['hit_at_k']} | P@{top_k}={ret_metrics['precision_at_k']} | MRR={ret_metrics['mrr']}")
-        print(f"   Génération : Ancrage={gen_metrics['anchorage_nominal']} | Traçabilité={gen_metrics['section_traceability']} | Temps={t_elapsed}s")
+        print(f"   Generation : Grounding={gen_metrics['anchorage_nominal']} | Traceability={gen_metrics['section_traceability']} | Latency={t_elapsed}s")
 
-    # Calcul des moyennes globales
+    # global averages
     n = len(eval_results)
     mean_hit = round(sum(r["retrieval"]["hit_at_k"] for r in eval_results) / n, 4)
     mean_prec = round(sum(r["retrieval"]["precision_at_k"] for r in eval_results) / n, 4)
@@ -178,25 +184,22 @@ def run_evaluation(questions: list[dict]) -> list[dict]:
     mean_time = round(sum(r["elapsed_time_sec"] for r in eval_results) / n, 2)
 
     print("\n" + "=" * 70)
-    print("📊 RÉCAPITULATIF GLOBAL DU BENCHMARK")
+    print("Global benchmark summary")
     print("=" * 70)
-    print(f"• Total questions évaluées : {n}")
-    print(f"• Hit@k moyen              : {mean_hit * 100:.1f} %")
-    print(f"• Precision@k moyenne      : {mean_prec * 100:.1f} %")
-    print(f"• MRR moyen                : {mean_mrr}")
-    print(f"• Temps moyen génération   : {mean_time} s")
+    print(f"• Total questions evaluated : {n}")
+    print(f"• Mean Hit@k                : {mean_hit * 100:.1f} %")
+    print(f"• Mean Precision@k          : {mean_prec * 100:.1f} %")
+    print(f"• Mean MRR                  : {mean_mrr}")
+    print(f"• Mean generation time      : {mean_time} s")
     print("=" * 70)
 
-    # Sauvegarde au format JSON Lines[cite: 1]
     os.makedirs(os.path.dirname(EVAL_OUTPUT_PATH), exist_ok=True)
     with open(EVAL_OUTPUT_PATH, "w", encoding="utf-8") as f:
         for r in eval_results:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    print(f"💾 Résultats persistés dans : {EVAL_OUTPUT_PATH}\n")
+    print(f"Results saved to: {EVAL_OUTPUT_PATH}\n")
 
     return eval_results
-
-
 
 if __name__ == "__main__":
    run_evaluation(BENCHMARK_QUESTIONS)

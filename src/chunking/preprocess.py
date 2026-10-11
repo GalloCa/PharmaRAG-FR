@@ -107,7 +107,6 @@ def extract_clinical_subsections(content, rcp_data, section_index):
     for idx, match in enumerate(matches):
         sub_id = f"4.{match.group(1)}" 
         
-        # On inclut le titre capturé dans le texte du chunk
         start_pos = match.start() 
         end_pos = matches[idx + 1].start() if idx + 1 < len(matches) else len(content)
         
@@ -155,8 +154,6 @@ def chunk_semantic(rcp_data):
         if len(content) <= 50 or is_noise:
             continue
         
-        # DETECTION BLINDÉE : Peu importe l'index i, si le bloc contient les mots clés cliniques
-        # formatés "4.X", il part dans l'extracteur chirurgical.
         matches = list(CLINICAL_PATTERN.finditer(content))
         if matches:
             clinical_chunks = extract_clinical_subsections(content, rcp_data, i)
@@ -203,7 +200,6 @@ def run_pipeline(jsonl_input, tsv_input, output_path):
             f.write(json.dumps(chunk, ensure_ascii=False) + "\n")
 
 if __name__ == "__main__":
-
     if not os.path.exists(RAW_DATA_PATH):
         print(f"ERROR: File {RAW_DATA_PATH} not found. Check the path.")
     elif not os.path.exists(NOTICE_TSV_PATH):
