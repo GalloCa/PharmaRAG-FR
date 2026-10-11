@@ -8,6 +8,12 @@ from tqdm import tqdm
 from config import MAX_WORDS, OVERLAP_WORDS, NOISE,  CLINICAL_PATTERN, CLINICAL_SUB_SECTIONS, RCP_TITLE, NOTICE_TSV_PATH, CHUNKS_PATH, RAW_DATA_PATH
 
 def clean_text(text):
+    """
+    Cleaning raw SmPC (RCP) text by stripping invisible Unicode control characters,
+    reconnecting fractured lines, removing preliminary tables of contents,
+    and regularizing repeated whitespaces.
+    """
+
     if not text: 
         return ""
     
@@ -23,6 +29,11 @@ def clean_text(text):
     return text.strip()
 
 def split_long_chunk(chunk):
+    """
+    Split chunks exceeding MAX_WORDS into overlapping windows of size MAX_WORDS
+    with a step of (MAX_WORDS - OVERLAP_WORDS).
+    Discard segments under 20 words.
+    """
     words = chunk["texte"].split()
     
     if len(words) < 20:
@@ -48,6 +59,10 @@ def split_long_chunk(chunk):
     return sub_chunks
 
 def deduplicate_rcp(jsonl_path, tsv_path):
+    """
+    Deduplicate entries by grouping records by active substance and retaining the longest SmPC (RCP)
+    per substance family.
+    """
     print("Loading metadata for deduplication")
     df_notices = pd.read_csv(tsv_path, sep="\t", dtype=str)
     df_notices["substances_actives"] = df_notices["substances_actives"].fillna("INCONNUE")
@@ -89,6 +104,9 @@ def deduplicate_rcp(jsonl_path, tsv_path):
     return deduplicated_rcp
 
 def extract_clinical_subsections(content, rcp_data, section_index):
+    """
+    Segment section 4 content into clinical subsections using CLINICAL_PATTERN regex match boundaries.
+    """
     chunks = []
     matches = list(CLINICAL_PATTERN.finditer(content))
     
@@ -127,6 +145,11 @@ def extract_clinical_subsections(content, rcp_data, section_index):
     return chunks
 
 def chunk_semantic(rcp_data):
+    """
+    Perform structural chunking across SmPC(RCP) blocks split by BDPM's native
+    back to top delimiter. 
+    Specializes clinical section 4 into sub-elements when markers are detected
+    """
     text = rcp_data["rcp_text"]
     chunks = []
 
@@ -182,6 +205,9 @@ def chunk_semantic(rcp_data):
     return chunks
 
 def run_pipeline(jsonl_input, tsv_input, output_path):
+    """
+    Excute the full preprocessing pipeline
+    """
     print("\nSTARTING NLP PREPROCESSING")
     deduplicated_data = deduplicate_rcp(jsonl_input, tsv_input)
 
