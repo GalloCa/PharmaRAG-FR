@@ -157,8 +157,6 @@ Python · ChromaDB · sentence-transformers · spaCy · Hugging Face Transformer
 
 - Lewis et al. (2020), *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*
 - Xiong, G., Jin, Q., Lu, Z., & Zhang, A. (2024). *Benchmarking Retrieval-Augmented Generation for Medicine*. Findings of the Association for Computational Linguistics: ACL 2024, 6233–6251. [arXiv:2402.13178](https://arxiv.org/abs/2402.13178) / [ACL Anthology](https://aclanthology.org/2024.findings-acl.372/)
-- Corpus QUAERO (annotations biomédicales françaises, format BRAT)
-- Principes FAIR pour la gestion de données de recherche
 
 
 
